@@ -3,3 +3,6 @@
 /rsa/run_rsa
 /rsa/rsa_encrypt
 /rsa/rsa_decrypt
+/server_client/run_client
+/server_client/run_server
+/server_client/AES_lib/run_aes
