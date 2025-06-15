@@ -6,3 +6,4 @@
 /server_client/run_client
 /server_client/run_server
 /server_client/AES_lib/run_aes
+/CCA2_attack/run_attack

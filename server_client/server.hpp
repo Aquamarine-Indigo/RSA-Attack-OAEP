@@ -233,6 +233,11 @@ private:
 		fout.open("history/server_history.txt", ios::out | ios::app);
 		fout << ss.str();
 		fout.close();
+		ss << "Raw AES (IV||Key):" << decrypted_aes << endl;
+
+		fout.open("history/server_confidential.txt", ios::out | ios::app);
+		fout << ss.str();
+		fout.close();
 
 		mpz_clears(data_aes, aes_key_mpz, aes_iv_mpz, NULL);
 	}
