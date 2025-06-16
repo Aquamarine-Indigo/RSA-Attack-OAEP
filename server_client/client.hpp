@@ -10,6 +10,7 @@
 #include <fstream>
 #include <vector>
 #include <ctime>
+#include <sstream>
 
 #include "../rsa/GenRSA.hpp"
 #include "AES_lib/AES_utils.hpp"
@@ -105,6 +106,32 @@ public:
 		cout << "-> WUP request raw mpz: " << wup_mpz << endl;
 
 		send_mpz_wup(aes_rsa_cipher, aes_encrypted_wup);
+
+		stringstream ss_aes, ss_wup, ss_cwup;
+		ss_aes << "###" << endl;
+		ss_aes << "AES_Key:" << vec2hex(aes_key) << endl;
+		ss_aes << "AES_IV: " << vec2hex(aes_iv) << endl;
+
+		vector<unsigned char> wup_vec = vector<unsigned char>(wup_message.begin(), wup_message.end());
+		ss_wup << "###" << endl;
+		ss_wup << "WUP: " << vec2hex(wup_vec) << endl;
+
+		ss_cwup << "###" << endl;
+		ss_cwup << "WUP encrypted: " << vec2hex(aes_encrypted_wup_vec) << endl;
+
+		fstream fout;
+		fout.open("history/AES_Key.txt", ios::app | ios::out);
+		fout << ss_aes.str();
+		fout.close();
+
+		fout.open("history/WUP_Request.txt", ios::app | ios::out);
+		fout << ss_wup.str();
+		fout.close();
+
+		fout.open("history/AES_Encrypted_WUP.txt", ios::app | ios::out);
+		fout << ss_cwup.str();
+		fout.close();
+
 		mpz_clears(aes_rsa_cipher, aes_encrypted_wup, wup_mpz, aes_message_mpz, aes_iv_mpz, NULL);
 	}
 
