@@ -114,14 +114,6 @@ void generate_RSA(u32 bits, RSAKeyPair& keypair_, RSAPublicKey& pubkey_, Modulus
 	mpz_clears(p, q, p_1, q_1, phi_N, NULL);
 	gmp_randclear(state);
 
-	// mpz_set(modulus_.N, keypair.N);
-	// mpz_set(modulus_.p, p);
-	// mpz_set(modulus_.q, q);
-	// mpz_set(keypair_.d, keypair.d);
-	// mpz_set(keypair_.e, keypair.e);
-	// mpz_set(keypair_.N, keypair.N);
-	// mpz_set(pubkey_.key, pubkey.key);
-	// mpz_set(pubkey_.N, pubkey.N);
 	keypair_.set_value(keypair.N, keypair.e, keypair.d);
 	pubkey_.set_value(pubkey.N, pubkey.key);
 	modulus_.set_value(keypair.N, p, q);
