@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
+#include <fstream>
 #include <sstream>
 
 using namespace std;
@@ -194,7 +195,7 @@ void generate_RSA(uint32_t bits, RSAKeyPair& keypair_, RSAPublicKey& pubkey_, Mo
 	modulus_.set_value(keypair.N, p, q);
 }
 
-vector<unsigned char> encoding_OAEP(const vector<unsigned char> &message) {
+vector<unsigned char> encoding_OAEP(const vector<unsigned char> &message, vector<unsigned char> &rand_seed) {
 	// n = 1024/8 = 128 (RSA key length in bytes)
 	// k0 = HASH_SIZE
 	// k1 = MAX_MESSAGE_SIZE - message.size() = ps_len
@@ -212,7 +213,7 @@ vector<unsigned char> encoding_OAEP(const vector<unsigned char> &message) {
 	data_block.insert(data_block.end(), 0x01);
 	data_block.insert(data_block.end(), message.begin(), message.end());
 	
-	vector<unsigned char> rand_seed(HASH_SIZE);
+	// vector<unsigned char> rand_seed(HASH_SIZE);
 	for(int i = 0; i < HASH_SIZE; i++) {
 		rand_seed[i] = rand() % 256;
 	}
@@ -296,20 +297,32 @@ vector<unsigned char> decoding_OAEP(const vector<unsigned char> &encoded_message
 	return vector<unsigned char>(it + 1, data_block.end());
 }
 
-void encrypt_RSA(mpz_t &c, const mpz_t &m, const RSAPublicKey& pk) {
+void encrypt_RSA(mpz_t &c, const mpz_t &m, const RSAPublicKey& pk, bool save_seed=false) {
 	vector<unsigned char> message_vec = mpz2vec(m);
-	vector<unsigned char> oaep_message = encoding_OAEP(message_vec);
+	vector<unsigned char> rand_seed(HASH_SIZE);
+	vector<unsigned char> oaep_message = encoding_OAEP(message_vec, rand_seed);
 	mpz_t oaep_message_mpz;
 	mpz_init(oaep_message_mpz);
 	vec2mpz(oaep_message_mpz, oaep_message);
 	mpz_powm(c, oaep_message_mpz, pk.key, pk.N);
+
+	if(save_seed == true) {
+		ofstream outfile;
+		outfile.open("rsa_encryption/Random_Number.txt");
+		outfile << vec2hex(rand_seed);
+		outfile.close();
+
+		outfile.open("rsa_encryption/Message_After_Padding.txt");
+		outfile << vec2hex(oaep_message);
+		outfile.close();
+	}
 }
 
 void decrypt_RSA(mpz_t &m, const mpz_t &c, const RSAPrivateKey& sk) {
 	mpz_t oaep_message_mpz;
 	mpz_init(oaep_message_mpz);
 	mpz_powm(oaep_message_mpz, c, sk.key, sk.N);
-	vector<unsigned char> oaep_message = mpz2vec(oaep_message_mpz);
+	vector<unsigned char> oaep_message = mpz2vec_len(oaep_message_mpz, RSA_BYTE_SIZE);
 	vector<unsigned char> message_vec = decoding_OAEP(oaep_message);
 	vec2mpz(m, message_vec);
 }
