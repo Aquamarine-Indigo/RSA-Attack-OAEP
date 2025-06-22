@@ -108,7 +108,7 @@ void generate_RSA(u32 bits, RSAKeyPair& keypair_, RSAPublicKey& pubkey_, Modulus
 	mpz_set(pubkey.N, keypair.N);
 	// Compute private exponent d = e^{-1} mod phi
 	if (mpz_invert(keypair.d, keypair.e, phi_N) == 0) {
-		std::cerr << "Error computing modular inverse (e, phi)." << std::endl;
+		cerr << "Error computing modular inverse (e, phi)." << endl;
 		return;
 	}
 	mpz_clears(p, q, p_1, q_1, phi_N, NULL);
